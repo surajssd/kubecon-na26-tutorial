@@ -1,0 +1,410 @@
+@import '@fontsource-variable/roboto/wght.css';
+
+:root {
+  --mono: Menlo, ui-monospace, SFMono-Regular, Consolas, monospace;
+  /* From the KubeCon + CloudNativeCon North America 2026 template theme. */
+  --brand-blue: #113e82;
+  --brand-yellow: #ffee88;
+  --brand-ice: #e3f6ff;
+  --slidev-code-font-size: 0.72rem;
+  --slidev-code-line-height: 1.45;
+  --slidev-code-padding: 10px 14px;
+  --slidev-transition-duration: 0.6s;
+}
+
+/* The title and chapter frames stay brand blue in light mode, as in the template, so they keep the dark palette. */
+:root,
+.slidev-layout.kubecon-title,
+.slidev-layout.chapter {
+  --ink: #f5f7ff;
+  --ink-muted: #b3c0e0;
+  --ink-faint: #6a7fae;
+  --line: #2a4380;
+  --surface: rgb(10 24 58 / 0.72);
+  --surface-raised: #142a5c;
+  --accent: #d62293;
+  --accent-ink: #ffffff;
+  --live: #59d68c;
+  --req-1: #4cc9f0;
+  --req-2: #f478b4;
+  --req-3: #f9c74f;
+  --req-4: #90e0a0;
+  --req-5: #b8a1ff;
+  --req-6: #ff9f68;
+  --req-1-soft: rgb(76 201 240 / 0.7);
+  --ink-inverse: #07142e;
+  --tint: 255 255 255;
+  --slide-background:
+    radial-gradient(110% 80% at 100% 0%, var(--brand-blue) 0%, transparent 60%),
+    radial-gradient(80% 70% at 0% 100%, rgb(110 18 90 / 0.45) 0%, transparent 65%),
+    #081634;
+  --slidev-slide-container-background: #030b1d;
+  --slidev-code-background: rgb(3 11 29 / 0.7);
+}
+
+/* The light ink, request, accent, and live colors keep at least 4.5:1 contrast as text on white and under white text. */
+html:not(.dark) {
+  --ink: #052243;
+  --ink-muted: #3a4a6a;
+  --ink-faint: #5a6a8a;
+  --line: #b9c6dd;
+  --surface: rgb(17 62 130 / 0.05);
+  --surface-raised: #e4ebf6;
+  --accent: #d62293;
+  --accent-ink: #ffffff;
+  --live: #15803d;
+  --req-1: #0369a1;
+  --req-2: #be185d;
+  --req-3: #a16207;
+  --req-4: #2e7d32;
+  --req-5: #6d28d9;
+  --req-6: #c2410c;
+  --req-1-soft: #0e7490;
+  --ink-inverse: #ffffff;
+  --tint: 7 20 46;
+  --slide-background:
+    radial-gradient(110% 80% at 100% 0%, rgb(17 62 130 / 0.12) 0%, transparent 60%),
+    radial-gradient(80% 70% at 0% 100%, rgb(214 34 147 / 0.07) 0%, transparent 65%),
+    #ffffff;
+  --slidev-slide-container-background: #dde3ee;
+  --slidev-code-background: #f1f4f9;
+}
+
+.slidev-layout {
+  color: var(--ink);
+  background: var(--slide-background);
+}
+
+.slidev-layout .slidev-vclick-target,
+.slidev-page .slidev-layout .ladder li {
+  transition: opacity 0.6s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --slidev-transition-duration: 0s;
+  }
+
+  .slidev-layout .slidev-vclick-target,
+  .slidev-page .slidev-layout .ladder li {
+    transition: none;
+  }
+}
+
+.slidev-layout h1 {
+  margin-bottom: 0.6rem;
+  color: var(--ink);
+  font-size: 2.1rem;
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+
+.slidev-layout h1 + p {
+  margin-top: 0;
+  opacity: 1;
+  color: var(--ink-muted);
+}
+
+.slidev-layout h2 {
+  margin: 0.4rem 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.slidev-layout p,
+.slidev-layout li {
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+
+.slidev-layout strong {
+  color: var(--ink);
+}
+
+.slidev-layout ul,
+.slidev-layout ol {
+  margin: 0.4rem 0;
+}
+
+.slidev-layout li {
+  margin: 0.3rem 0;
+}
+
+.slidev-layout code:not(pre code) {
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: var(--ink);
+  background: rgb(var(--tint) / 0.08);
+}
+
+.slidev-layout pre.slidev-code {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.slidev-layout table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 1rem;
+}
+
+.slidev-layout th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--line);
+}
+
+.slidev-layout td {
+  padding: 10px 12px;
+  color: var(--ink-muted);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 50%, transparent);
+}
+
+.slidev-layout td:first-child {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.slidev-layout blockquote {
+  margin: 0.8rem 0;
+  padding: 8px 14px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  background: rgb(214 34 147 / 0.08);
+}
+
+.slidev-layout blockquote p {
+  margin: 0;
+  color: var(--ink);
+}
+
+.slidev-layout .kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--req-2);
+}
+
+.slidev-layout .lede {
+  font-size: 1.1rem;
+  color: var(--ink-muted);
+}
+
+.slidev-layout .muted {
+  color: var(--ink-faint);
+}
+
+.slidev-layout .small {
+  font-size: 0.8rem;
+}
+
+.slidev-layout .cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.slidev-layout .cols-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.slidev-layout .card {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.slidev-layout .card h2,
+.slidev-layout .card h3 {
+  margin-top: 0;
+}
+
+.slidev-layout .card p {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+}
+
+.slidev-layout .big-number {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.req-1 { --req: var(--req-1); }
+.req-2 { --req: var(--req-2); }
+.req-3 { --req: var(--req-3); }
+.req-4 { --req: var(--req-4); }
+.req-5 { --req: var(--req-5); }
+.req-6 { --req: var(--req-6); }
+
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.badge.simulated {
+  color: var(--ink);
+  border: 1px dashed var(--ink-faint);
+}
+
+.badge.live {
+  color: var(--ink-inverse);
+  background: var(--live);
+}
+
+.sim-button {
+  min-width: 76px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--surface-raised);
+}
+
+.sim-button.primary {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  background: var(--accent);
+}
+
+.sim-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.sim-button:focus-visible,
+.segmented button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.75rem;
+}
+
+.segmented-label {
+  margin-right: 5px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.segmented button {
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink-muted);
+  background: transparent;
+}
+
+.segmented button[aria-pressed="true"] {
+  border-color: var(--ink-muted);
+  color: var(--ink-inverse);
+  background: var(--ink);
+}
+
+.segmented button:disabled {
+  opacity: 0.4;
+}
+
+.slidev-layout.title-slide .kicker {
+  color: var(--brand-yellow);
+}
+
+.slidev-layout.title-slide h1 {
+  margin: 6px 0;
+  font-size: 3.4rem;
+  line-height: 1.05;
+}
+
+.slidev-layout.title-slide .lede {
+  margin: 0;
+  font-size: 1.35rem;
+  color: var(--brand-ice);
+}
+
+.slidev-layout.title-slide .speakers {
+  display: flex;
+  gap: 56px;
+  margin-top: 28px;
+}
+
+.slidev-layout.title-slide .speakers p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.slidev-layout.title-slide .speakers strong {
+  display: block;
+  font-size: 1.15rem;
+}
+
+.slidev-layout .speaker-company-logo {
+  display: block;
+  width: 128px;
+  max-width: 100%;
+  height: 20px;
+  object-fit: contain;
+  object-position: left;
+}
+
+.slidev-layout.title-slide .speaker-company-logo {
+  margin-top: 8px;
+}
+
+.token-stream {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  white-space: pre;
+}
+
+.token-stream span {
+  padding: 3px 1px;
+  border-radius: 4px;
+}
+
+.token-stream span:nth-child(3n + 1) { background: color-mix(in srgb, var(--req-1) 22%, transparent); }
+.token-stream span:nth-child(3n + 2) { background: color-mix(in srgb, var(--req-2) 22%, transparent); }
+.token-stream span:nth-child(3n) { background: color-mix(in srgb, var(--req-3) 22%, transparent); }
+
+.slidev-layout.sim-slide {
+  padding-top: 26px;
+  padding-bottom: 22px;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}

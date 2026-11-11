@@ -1,0 +1,230 @@
+apiVersion: nvidia.com/v1beta1
+kind: DynamoGraphDeployment
+metadata:
+  name: vllm
+  annotations:
+    nvidia.com/dynamo-discovery-backend: kubernetes
+    nvidia.com/enable-grove: "false"
+spec:
+  backendFramework: vllm
+  labels:
+    app.kubernetes.io/name: dynamo
+  annotations:
+    nvidia.com/deployment-strategy: Recreate
+  env:
+    - name: HOME
+      value: /tmp
+    - name: HF_HOME
+      value: /tmp/huggingface
+    - name: HF_HUB_OFFLINE
+      value: "1"
+    - name: TRANSFORMERS_OFFLINE
+      value: "1"
+    - name: XDG_CACHE_HOME
+      value: /tmp/cache
+    - name: VLLM_CACHE_ROOT
+      value: /tmp/vllm-cache
+    - name: DYN_REQUEST_PLANE
+      value: tcp
+    - name: DYN_EVENT_PLANE
+      value: zmq
+    - name: UCX_TLS
+      value: tcp,cuda_copy
+    - name: VLLM_NIXL_SIDE_CHANNEL_HOST
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+  components:
+    - name: Frontend
+      type: frontend
+      replicas: 1
+      sharedMemorySize: 1Gi
+      podTemplate:
+        spec:
+          automountServiceAccountToken: true
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 2000
+            runAsGroup: 2000
+            fsGroup: 2000
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: main
+              image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.0@sha256:c957d97ccb8b225d7671f39afc6b340d910f0c58f8d17837cce6078c77344cd0
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              workingDir: /tmp
+              command: ["python3", "-m", "dynamo.frontend"]
+              resources:
+                requests:
+                  cpu: "1"
+                  memory: 2Gi
+                limits:
+                  cpu: "2"
+                  memory: 4Gi
+              startupProbe:
+                httpGet:
+                  path: /live
+                  port: 8000
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 60
+              volumeMounts:
+                - name: model-cache
+                  mountPath: /models
+                  readOnly: true
+          volumes:
+            - name: model-cache
+              persistentVolumeClaim:
+                claimName: workshop-models
+                readOnly: true
+    - name: prefill
+      type: prefill
+      replicas: 1
+      sharedMemorySize: 1Gi
+      podTemplate:
+        spec:
+          automountServiceAccountToken: true
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 2000
+            runAsGroup: 2000
+            fsGroup: 2000
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: main
+              image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.0@sha256:c957d97ccb8b225d7671f39afc6b340d910f0c58f8d17837cce6078c77344cd0
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              workingDir: /tmp
+              command: ["python3", "-m", "dynamo.vllm"]
+              args:
+                - --model
+                - /models/google/gemma-4-12B-it/707f0a3b8a3c7ad586ed01e27eafbad8a27dd0f7
+                - --served-model-name
+                - google/gemma-4-12B-it
+                - --disaggregation-mode
+                - prefill
+                - --kv-transfer-config
+                - '{"kv_connector":"NixlConnector","kv_role":"kv_producer","kv_buffer_device":"cpu"}'
+                - --language-model-only
+                - --dyn-reasoning-parser
+                - gemma4
+                - --dyn-default-thinking-mode
+                - disabled
+                - --dtype
+                - bfloat16
+                - --max-model-len
+                - "2048"
+                - --max-num-seqs
+                - "8"
+                - --kv-cache-memory-bytes
+                - "2147483648"
+                - --enforce-eager
+                - --disable-hybrid-kv-cache-manager
+              resources:
+                requests:
+                  cpu: "2"
+                  memory: 8Gi
+                  nvidia.com/gpu: 1
+                limits:
+                  cpu: "4"
+                  memory: 32Gi
+                  nvidia.com/gpu: 1
+              startupProbe:
+                httpGet:
+                  path: /live
+                  port: 9090
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 120
+              volumeMounts:
+                - name: model-cache
+                  mountPath: /models
+                  readOnly: true
+          volumes:
+            - name: model-cache
+              persistentVolumeClaim:
+                claimName: workshop-models
+                readOnly: true
+    - name: decode
+      type: decode
+      replicas: 1
+      sharedMemorySize: 1Gi
+      podTemplate:
+        spec:
+          automountServiceAccountToken: true
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 2000
+            runAsGroup: 2000
+            fsGroup: 2000
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: main
+              image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.0@sha256:c957d97ccb8b225d7671f39afc6b340d910f0c58f8d17837cce6078c77344cd0
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              workingDir: /tmp
+              command: ["python3", "-m", "dynamo.vllm"]
+              args:
+                - --model
+                - /models/google/gemma-4-12B-it/707f0a3b8a3c7ad586ed01e27eafbad8a27dd0f7
+                - --served-model-name
+                - google/gemma-4-12B-it
+                - --disaggregation-mode
+                - decode
+                - --kv-transfer-config
+                - '{"kv_connector":"NixlConnector","kv_role":"kv_consumer","kv_buffer_device":"cpu"}'
+                - --language-model-only
+                - --dyn-reasoning-parser
+                - gemma4
+                - --dyn-default-thinking-mode
+                - disabled
+                - --dtype
+                - bfloat16
+                - --max-model-len
+                - "2048"
+                - --max-num-seqs
+                - "8"
+                - --kv-cache-memory-bytes
+                - "2147483648"
+                - --enforce-eager
+                - --disable-hybrid-kv-cache-manager
+              resources:
+                requests:
+                  cpu: "2"
+                  memory: 8Gi
+                  nvidia.com/gpu: 1
+                limits:
+                  cpu: "4"
+                  memory: 32Gi
+                  nvidia.com/gpu: 1
+              startupProbe:
+                httpGet:
+                  path: /live
+                  port: 9090
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 120
+              volumeMounts:
+                - name: model-cache
+                  mountPath: /models
+                  readOnly: true
+          volumes:
+            - name: model-cache
+              persistentVolumeClaim:
+                claimName: workshop-models
+                readOnly: true

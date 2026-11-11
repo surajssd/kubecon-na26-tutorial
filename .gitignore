@@ -1,0 +1,4 @@
+kubecon-na26-tutorial-private
+draft
+tests/__pycache__/
+.playwright-mcp/

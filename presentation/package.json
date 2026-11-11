@@ -1,0 +1,18 @@
+{
+  "name": "inference-101-presentation",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "slidev",
+    "build": "slidev build"
+  },
+  "dependencies": {
+    "@fontsource-variable/roboto": "5.3.0",
+    "@slidev/cli": "53.0.0",
+    "@slidev/theme-default": "0.25.0",
+    "vue": "3.5.43"
+  }
+}
